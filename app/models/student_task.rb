@@ -1,5 +1,6 @@
 # Author: Andrew Kofink, 2013-09-28
 class StudentTask
+  include ActionView::Helpers::DateHelper
   include StudentTaskHelper
   attr_accessor :assignment, :current_stage, :participant, :stage_deadline, :topic
 
@@ -15,7 +16,7 @@ class StudentTask
     @topic = args[:topic]
   end
 
-  def self.create_student_task_for_participant(participant) # Rename this
+  def self.create_student_task_for_participant(participant)
     StudentTask.new(
       participant: participant,
       assignment: participant.assignment,
@@ -72,7 +73,6 @@ class StudentTask
     in_work_stage? && !started?
   end
 
-  include ActionView::Helpers::DateHelper
   def relative_deadline
     time_ago_in_words(stage_deadline) if stage_deadline
   end
@@ -124,15 +124,15 @@ class StudentTask
     students_teamed
   end
 
-  def self.get_submission_data(assignment_id, team_id, timeline_list)
-    SubmissionRecord.where(team_id: team_id, assignment_id: assignment_id).find_each do |sr|
-      timeline = {
-        label: sr.operation.humanize,
-        updated_at: sr.updated_at.strftime('%a, %d %b %Y %H:%M')
-      }
-      timeline[:link] = sr.content if sr.operation == 'Submit Hyperlink' || sr.operation == 'Remove Hyperlink'
-      timeline_list << timeline
-    end
-  end
+  # def self.get_submission_data(assignment_id, team_id, timeline_list)
+  #   SubmissionRecord.where(team_id: team_id, assignment_id: assignment_id).find_each do |sr|
+  #     timeline = {
+  #       label: sr.operation.humanize,
+  #       updated_at: sr.updated_at.strftime('%a, %d %b %Y %H:%M')
+  #     }
+  #     timeline[:link] = sr.content if sr.operation == 'Submit Hyperlink' || sr.operation == 'Remove Hyperlink'
+  #     timeline_list << timeline
+  #   end
+  # end
   
 end
