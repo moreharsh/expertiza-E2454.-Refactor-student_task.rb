@@ -208,16 +208,16 @@ describe StudentTask do
 
   # Tests teamed students method which returns the unique students that are paired with the student at some point
   # within their course
-  describe '#teamed_students' do
+  describe '#find_teammates_by_user' do
     context 'when not in any team' do
       it 'returns empty' do
-        expect(StudentTask.teamed_students(user3)).to eq({})
+        expect(StudentTask.find_teammates_by_user(user3)).to eq({})
       end
     end
     context 'when assigned in a cource_team ' do
       it 'returns empty' do
         allow(user).to receive(:teams).and_return([course_team])
-        expect(StudentTask.teamed_students(user)).to eq({})
+        expect(StudentTask.find_teammates_by_user(user)).to eq({})
       end
     end
     context 'when assigned in a assignment_team ' do
@@ -226,48 +226,8 @@ describe StudentTask do
         allow(AssignmentParticipant).to receive(:find_by).with(user_id: 1, parent_id: assignment.id).and_return(participant)
         allow(AssignmentParticipant).to receive(:find_by).with(user_id: 5, parent_id: assignment.id).and_return(participant2)
         allow(Assignment).to receive(:find_by).with(id: team.parent_id).and_return(assignment)
-        expect(StudentTask.teamed_students(user)).to eq(assignment.course_id => [user2.fullname])
+        expect(StudentTask.find_teammates_by_user(user)).to eq(assignment.course_id => [user2.fullname])
       end
     end
   end
-
-  # Verrifies retrieval of submission data from submission
-  # describe '#get_submission_data' do
-  #   context 'when no submission data mapped' do
-  #     it 'returns nil' do
-  #       timeline_list = []
-  #       expect(StudentTask.get_submission_data(1, 1, timeline_list)).to eq(nil)
-  #     end
-  #   end
-  #   context 'when submission data mapped and not submit hyperlink or Remove hyperlink' do
-  #     it 'returns timeline_list' do
-  #       timeline_list = []
-  #       allow(SubmissionRecord).to receive_message_chain(:where, :find_each).with(team_id: 1, assignment_id: 1).with(no_args).and_yield(submission_record)
-  #       allow(submission_record).to receive(:operation).and_return('testing_label')
-  #       allow(submission_record).to receive(:updated_at).and_return(Time.new(2019))
-  #       timevalue = Time.new(2019).strftime('%a, %d %b %Y %H:%M')
-  #       expect(StudentTask.get_submission_data(1, 1, timeline_list)).to eq([{ label: 'Testing label', updated_at: timevalue }])
-  #     end
-  #   end
-  #   context 'when submission data mapped and operation is submit_hyperlink' do
-  #     it 'returns timeline_list with link' do
-  #       timeline_list = []
-  #       allow(SubmissionRecord).to receive_message_chain(:where, :find_each).with(team_id: 1, assignment_id: 1).with(no_args).and_yield(submission_record)
-  #       allow(submission_record).to receive(:operation).and_return('Submit Hyperlink')
-  #       allow(submission_record).to receive(:updated_at).and_return(Time.new(2019))
-  #       timevalue = Time.new(2019).strftime('%a, %d %b %Y %H:%M')
-  #       expect(StudentTask.get_submission_data(1, 1, timeline_list)).to eq([{ label: 'Submit hyperlink', updated_at: timevalue, link: 'www.wolfware.edu' }])
-  #     end
-  #   end
-  #   context 'when submission data mapped and operation is Remove Hyperlink' do
-  #     it 'returns timeline_list with link' do
-  #       timeline_list = []
-  #       allow(SubmissionRecord).to receive_message_chain(:where, :find_each).with(team_id: 1, assignment_id: 1).with(no_args).and_yield(submission_record)
-  #       allow(submission_record).to receive(:operation).and_return('Remove Hyperlink')
-  #       timevalue = Time.new(2019).strftime('%a, %d %b %Y %H:%M')
-  #       allow(submission_record).to receive(:updated_at).and_return(Time.new(2019))
-  #       expect(StudentTask.get_submission_data(1, 1, timeline_list)).to eq([{ label: 'Remove hyperlink', updated_at: timevalue, link: 'www.wolfware.edu' }])
-  #     end
-  #   end
-  # end
 end

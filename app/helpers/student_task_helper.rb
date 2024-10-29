@@ -59,7 +59,7 @@ module StudentTaskHelper
   end
 
   def update_timeline_with_peer_reviews(participant_id, timeline_list)
-    populate_timeline_from(ReviewResponseMap, participant_id, ->(_response) { ('Round ' + _response.round.to_s + ' Peer Review').humanize }, timeline_list)
+    populate_timeline_from(ReviewResponseMap, participant_id, ->(response) { ('Round ' + response.round.to_s + ' Peer Review').humanize }, timeline_list)
   end
 
   def update_timeline_with_author_feedbacks(participant_id, timeline_list)
@@ -82,5 +82,27 @@ module StudentTaskHelper
     update_timeline_with_peer_reviews(participant.get_reviewer.try(:id), timeline_list)
     update_timeline_with_author_feedbacks(participant.try(:id), timeline_list)
     timeline_list.sort_by { |f| Time.zone.parse f[:updated_at] }
+  end
+
+  def create_student_task_for_participant(participant)
+    StudentTask.new(
+      participant: participant,
+      assignment: participant.assignment,
+      topic: participant.topic,
+      current_stage: participant.current_stage,
+      stage_deadline: get_stage_deadline(participant.stage_deadline)
+    )
+  end
+
+  def retrieve_tasks_for_user(user)
+    user.assignment_participants.includes(%i[assignment topic]).map do |participant|
+      create_student_task_for_participant participant
+    end.sort_by(&:stage_deadline)
+  end
+
+  def get_stage_deadline(part)
+    Time.parse(part)
+  rescue StandardError
+      Time.now + 1.year
   end
 end

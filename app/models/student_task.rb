@@ -16,27 +16,6 @@ class StudentTask
     @topic = args[:topic]
   end
 
-  def self.create_student_task_for_participant(participant)
-    StudentTask.new(
-      participant: participant,
-      assignment: participant.assignment,
-      topic: participant.topic,
-      current_stage: participant.current_stage,
-      stage_deadline: (begin
-                         Time.parse(participant.stage_deadline)
-                       rescue StandardError
-                         Time.now + 1.year
-                       end)
-    )
-  end
-
-
-  def self.fetch_tasks_for_user(user)
-    user.assignment_participants.includes(%i[assignment topic]).map do |participant|
-      StudentTask.create_student_task_for_participant participant
-    end.sort_by(&:stage_deadline)
-  end
-
   def topic_name
     topic.try(:topic_name) || '-'
   end
@@ -101,7 +80,7 @@ class StudentTask
     @started ||= incomplete? && revision?
   end
 
-  def self.teamed_students(user, ip_address = nil)
+  def self.find_teammates_by_user(user, ip_address = nil)
     students_teamed = {}
     user.teams.each do |team|
       next unless team.is_a?(AssignmentTeam)
@@ -123,16 +102,4 @@ class StudentTask
     end
     students_teamed
   end
-
-  # def self.get_submission_data(assignment_id, team_id, timeline_list)
-  #   SubmissionRecord.where(team_id: team_id, assignment_id: assignment_id).find_each do |sr|
-  #     timeline = {
-  #       label: sr.operation.humanize,
-  #       updated_at: sr.updated_at.strftime('%a, %d %b %Y %H:%M')
-  #     }
-  #     timeline[:link] = sr.content if sr.operation == 'Submit Hyperlink' || sr.operation == 'Remove Hyperlink'
-  #     timeline_list << timeline
-  #   end
-  # end
-  
 end
