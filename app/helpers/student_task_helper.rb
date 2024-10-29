@@ -103,7 +103,7 @@ module StudentTaskHelper
       assignment: participant.assignment,
       topic: participant.topic,
       current_stage: participant.current_stage,
-      stage_deadline: get_stage_deadline(participant.stage_deadline)
+      stage_deadline: parse_stage_deadline(participant.stage_deadline)
     )
   end
 
@@ -113,7 +113,7 @@ module StudentTaskHelper
     end.sort_by(&:stage_deadline)
   end
 
-  def get_stage_deadline(part)
+  def parse_stage_deadline(part)
     Time.parse(part)
   rescue StandardError
     Time.now + 1.year
